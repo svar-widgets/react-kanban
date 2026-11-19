@@ -1,0 +1,137 @@
+.wx-stack.wx-aabDoTQH {
+  min-width: 0;
+  overflow-anchor: none;
+}
+
+.wx-stack-mark.wx-aabDoTQH {
+  height: 0;
+}
+
+.wx-stack-group.wx-aabDoTQH {
+  margin-bottom: 12px;
+  background: var(--wx-kanban-column-bg);
+  border-radius: var(--wx-radius-major);
+}
+
+/* The one sticky level: scoped to its own section, so consecutive headers push
+   each other out with no coordination and no measured offset. */
+.wx-stack-header.wx-aabDoTQH {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  background: var(--wx-kanban-column-bg);
+  border-bottom: 1px solid var(--wx-kanban-border-color);
+  border-radius: var(--wx-radius-major) var(--wx-radius-major) 0 0;
+}
+
+.wx-collapsed.wx-aabDoTQH .wx-stack-header {
+  border-bottom-color: transparent;
+  border-radius: var(--wx-radius-major);
+}
+
+/* Flow tracks never shrink; clip rather than scroll so no horizontal axis
+   appears. `clip` creates no scroll container, so sticky is unaffected. */
+.wx-stack-body.wx-aabDoTQH {
+  min-width: 0;
+  overflow-x: clip;
+}
+
+.wx-collapsed.wx-aabDoTQH .wx-stack-body {
+  display: none;
+}
+
+.wx-title.wx-aabDoTQH {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-weight: var(--wx-font-weight-md);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wx-icon.wx-aabDoTQH {
+  font-size: var(--wx-icon-size);
+}
+
+.wx-toggle.wx-aabDoTQH,
+.wx-column-menu.wx-aabDoTQH {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  border-radius: var(--wx-icon-border-radius);
+  padding: 0;
+  flex: 0 0 18px;
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  font-size: var(--wx-font-size-sm);
+  color: var(--wx-color-font-alt);
+}
+
+.wx-toggle.wx-aabDoTQH:hover,
+.wx-column-menu.wx-aabDoTQH:hover,
+.wx-lane-toggle.wx-aabDoTQH:hover {
+  background: var(--wx-background-hover);
+}
+
+.wx-toggle.wx-aabDoTQH:focus,
+.wx-column-menu.wx-aabDoTQH:focus {
+  outline: none;
+  border: 1px solid var(--wx-color-primary);
+}
+
+.wx-lane-toggle.wx-aabDoTQH {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  max-width: 40%;
+  padding: 0 4px;
+  border: 1px solid transparent;
+  border-radius: var(--wx-icon-border-radius);
+  background: transparent;
+  color: var(--wx-color-font-alt);
+  cursor: pointer;
+  font: inherit;
+}
+
+.wx-lane-toggle.wx-aabDoTQH:focus-visible {
+  outline: none;
+  border-color: var(--wx-color-primary);
+}
+
+.wx-lane-label.wx-aabDoTQH {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.wx-column-summaries.wx-aabDoTQH {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  max-width: 40%;
+  overflow: hidden;
+}
+
+.wx-column-summary.wx-aabDoTQH {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 1px 6px;
+  border: 1px solid var(--wx-kanban-border-color);
+  border-radius: var(--wx-border-radius);
+  background: var(--wx-kanban-tag-bg);
+  font-size: var(--wx-font-size-sm);
+  line-height: var(--wx-line-height-sm);
+  color: var(--wx-color-font-alt);
+}

@@ -56,7 +56,7 @@
   overflow: visible;
 }
 
-.wx-scroll-board.wx-aac6Qo5t .wx-column.wx-collapsed {
+.wx-scroll-board.wx-aac6Qo5t:not(.wx-lanes) .wx-column.wx-collapsed {
   position: sticky;
   top: 0;
   z-index: 1;
@@ -71,11 +71,22 @@
   flex: none;
 }
 
-.wx-scroll-board.wx-aac6Qo5t .wx-column-header {
+.wx-scroll-board.wx-aac6Qo5t:not(.wx-lanes) .wx-column-header {
   position: sticky;
   top: 0;
   z-index: 1;
   background: var(--wx-kanban-column-bg);
+}
+
+/* single vertical column of groups (layout: "stack"): one scroll axis */
+.wx-layout-stack.wx-aac6Qo5t .wx-scroll {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+/* Without drag, a finger starting on a card must scroll the board. */
+.wx-layout-stack.wx-aac6Qo5t .wx-card {
+  touch-action: auto;
 }
 
 /* flexible columns sharing viewport width (fixedColumnWidth: false) */

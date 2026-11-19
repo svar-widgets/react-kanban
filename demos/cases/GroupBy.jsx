@@ -1,10 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Kanban } from '../../src/index.js';
-import { Field, Select } from '@svar-ui/react-core';
-import { Layout, Cell } from '@svar-ui/react-layout';
+import { DemoPage, ToolbarGroup, SelectBox } from '../ui/index.js';
 import { getGroupByData, users } from '../data.js';
-
-import './GroupBy.css';
 
 const {
   columns: groupColumns,
@@ -13,9 +10,9 @@ const {
 } = getGroupByData();
 
 const options = [
-  { id: 'stage', label: 'By stage' },
-  { id: 'priority', label: 'By priority' },
-  { id: 'user', label: 'By person' },
+  { id: 'stage', label: 'Stage' },
+  { id: 'priority', label: 'Priority' },
+  { id: 'user', label: 'Person' },
 ];
 
 const card = {
@@ -24,10 +21,10 @@ const card = {
   description: true,
   users,
   tags: true,
-  attachments: true,
-  comments: true,
 };
 
+// a field name or a get/set pair maps cards to columns; moving a card
+// between "person" columns writes both fields
 const userAccessor = {
   get: (card) => card.user,
   set: (card, value) => ({
@@ -57,29 +54,27 @@ function GroupBy() {
   );
 
   function changeGroup({ value }) {
-    if (value !== 'stage' && value !== 'priority' && value !== 'user') return;
-
+    // keep the edits made under the previous grouping
     setCards(cloneCards(api?.getCards() ?? cards));
     setGroupBy(value);
   }
 
   return (
-    <Layout>
-      <div className="group-toolbar">
-        <Field label="Group cards" position="left">
-          <Select value={groupBy} options={options} onChange={changeGroup} />
-        </Field>
-      </div>
-      <Cell>
-        <Kanban
-          init={(obj) => setApi(obj)}
-          cards={cards}
-          columns={columns}
-          columnAccessor={columnAccessor}
-          card={card}
-        />
-      </Cell>
-    </Layout>
+    <DemoPage
+      toolbar={
+        <ToolbarGroup label="Group by">
+          <SelectBox value={groupBy} options={options} onChange={changeGroup} />
+        </ToolbarGroup>
+      }
+    >
+      <Kanban
+        init={(obj) => setApi(obj)}
+        cards={cards}
+        columns={columns}
+        columnAccessor={columnAccessor}
+        card={card}
+      />
+    </DemoPage>
   );
 }
 

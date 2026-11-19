@@ -1,0 +1,16 @@
+.card-styling {
+  height: 100%;
+}
+
+/* static card.css */
+.card-styling .wx-card.card-pinned {
+  border-left: 3px solid var(--wx-color-warning);
+}
+
+/* cardCss results */
+.card-styling .wx-card.card-high {
+  border-top: 3px solid var(--wx-color-danger);
+}
+.card-styling .wx-card.card-complete {
+  opacity: 0.6;
+}

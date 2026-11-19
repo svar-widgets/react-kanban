@@ -20,23 +20,31 @@ The kanban comes with full TypeScript support, extensible API, and flexible CSS 
 
 ### ✨ Key Features
 
-- Drag-and-drop cards between columns and rows
+- Drag-and-drop cards between and within columns
 - Built-in card editor
-- Context menu and toolbar
-- Card filtering, sorting and grouping
-- REST data provider for backend integration
+- Card and column menus
+- Toolbar
+- Column summaries
+- Card filtering, sorting, and grouping
 - Custom card templates
 - Localization
 - Light and dark themes
+- Stack layout for small screens
+- REST data provider for backend integration
+- Live multi-user updates
 - Full TypeScript support
 
 ### 🚀 PRO Edition
 
 SVAR React Kanban is available in open-source and PRO editions. PRO features include:
 
-- Export to PDF/PNG/Excel
+- Swimlanes
+- Group manager for columns and swimlanes
+- Card grid – fixed-size tiles inside a column
+- Drag-in from external lists
 - Dynamic data loading
-- Undo/redo support
+- Undo/redo
+- Export to PDF, PNG, Excel
 
 Visit the [pricing page](https://svar.dev/react/kanban/pricing/) for licensing details, feature comparison, and free trial.
 

@@ -1,0 +1,10 @@
+.wx-demo-range {
+  display: flex;
+  align-items: center;
+  gap: var(--wx-padding);
+  white-space: nowrap;
+}
+.wx-demo-range-value {
+  min-width: 6ch;
+  font-variant-numeric: tabular-nums;
+}

@@ -43,33 +43,8 @@
   color: var(--wx-color-font-alt);
 }
 
-.wx-menu.wx-aaeD6bcf {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background: none;
-  border: none;
-  padding: 0;
-  width: 22px;
-  height: 22px;
-  border-radius: var(--wx-icon-border-radius);
-  cursor: pointer;
-  color: var(--wx-color-font-alt);
-  font-size: 16px;
-}
-
 .wx-title.wx-aaeD6bcf .wx-menu {
   float: right;
-}
-
-.wx-menu.wx-aaeD6bcf:hover {
-  background: var(--wx-background-hover);
-  color: var(--wx-color-font);
-}
-
-.wx-menu.wx-aaeD6bcf:focus-visible {
-  outline: none;
-  border: 1px solid var(--wx-color-primary);
 }
 
 .wx-body.wx-aaeD6bcf {

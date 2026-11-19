@@ -1,0 +1,24 @@
+.wx-menu.wx-aabqkRRq {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--wx-icon-border-radius);
+  cursor: pointer;
+  color: var(--wx-color-font-alt);
+  font-size: 16px;
+}
+
+.wx-menu.wx-aabqkRRq:hover {
+  background: var(--wx-background-hover);
+  color: var(--wx-color-font);
+}
+
+.wx-menu.wx-aabqkRRq:focus-visible {
+  outline: none;
+  border: 1px solid var(--wx-color-primary);
+}

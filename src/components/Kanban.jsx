@@ -12,7 +12,7 @@ import { EventBusRouter } from '@svar-ui/lib-state';
 import { KanbanStore } from '@svar-ui/kanban-store';
 
 import Layout from './Layout.jsx';
-import ExportLayout from './ExportLayout.jsx';
+const ExportLayout = null; // pro feature
 
 import { KanbanApiContext, DndContext } from '../context.js';
 import { DndState } from './useDrag.js';
@@ -22,6 +22,7 @@ import { getCardShape } from '../defaults.js';
 import { en } from '@svar-ui/kanban-locales';
 import { en as coreEn } from '@svar-ui/core-locales';
 import { Locale } from '@svar-ui/react-core';
+import './Kanban.css';
 
 function toHandlerName(action) {
   return (
@@ -38,6 +39,8 @@ const Kanban = forwardRef(function Kanban(props, ref) {
     cards,
     columns,
     columnAccessor = 'column',
+    swimlanes,
+    swimlaneAccessor = 'swimlane',
     filters = new Map(),
     sort = null,
     card = getCardShape(),
@@ -49,8 +52,11 @@ const Kanban = forwardRef(function Kanban(props, ref) {
     init,
     tooltip,
     cardPopup,
+    cardListStart,
+    cardListEnd,
     cardCss,
     columnCss,
+    cardProjection = null,
     ...restProps
   } = props;
 
@@ -100,7 +106,7 @@ const Kanban = forwardRef(function Kanban(props, ref) {
       exec: store.in.exec.bind(store.in),
       on: store.in.on.bind(store.in),
       detach: store.in.detach.bind(store.in),
-      setNext: store.in.setNext.bind(store.in),
+      setNext: (ev) => (routerRef.current = routerRef.current.setNext(ev)),
       intercept: store.in.intercept.bind(store.in),
     };
   }
@@ -125,6 +131,8 @@ const Kanban = forwardRef(function Kanban(props, ref) {
       cards,
       columns,
       columnAccessor,
+      swimlanes,
+      swimlaneAccessor,
       filters,
       sort,
       dynamicData,
@@ -148,12 +156,26 @@ const Kanban = forwardRef(function Kanban(props, ref) {
       firstEffectRef.current = false;
       return;
     }
-    store.init({ cards, columns, columnAccessor, filters, sort, dynamicData });
-  }, [cards, columns, columnAccessor, filters, sort, dynamicData]);
-  // sync export-data meta
-  useEffect(() => {
-    store.meta['export-data'] = { card, cardContent, cardCss, columnCss };
-  }, [card, cardContent, cardCss, columnCss]);
+    store.init({
+      cards,
+      columns,
+      columnAccessor,
+      swimlanes,
+      swimlaneAccessor,
+      filters,
+      sort,
+      dynamicData,
+    });
+  }, [
+    cards,
+    columns,
+    columnAccessor,
+    swimlanes,
+    swimlaneAccessor,
+    filters,
+    sort,
+    dynamicData,
+  ]);
   // subscribe to renderMode
   const [renderMode, setRenderMode] = useState('');
   useEffect(() => {
@@ -173,10 +195,13 @@ const Kanban = forwardRef(function Kanban(props, ref) {
             cardContent={cardContent}
             tooltip={tooltip}
             cardPopup={cardPopup}
+            cardListStart={cardListStart}
+            cardListEnd={cardListEnd}
             cardCss={cardCss}
             columnCss={columnCss}
+            cardProjection={cardProjection}
           />
-          {renderMode === 'export' && (
+          {ExportLayout && renderMode === 'export' && (
             <ExportLayout
               cardShape={card}
               cardContent={cardContent}

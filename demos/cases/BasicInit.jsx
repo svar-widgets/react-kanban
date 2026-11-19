@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { card, getData } from '../data.js';
 import { Kanban, Editor, getEditorItems } from '../../src/index.js';
+import { DemoPage } from '../ui/index.js';
 
 const { columns, cards } = getData();
 
@@ -10,7 +11,7 @@ function BasicInit() {
   const items = getEditorItems(card);
 
   return (
-    <>
+    <DemoPage>
       <Kanban
         init={(obj) => setApi(obj)}
         cards={cards}
@@ -18,7 +19,7 @@ function BasicInit() {
         card={card}
       />
       {api && <Editor api={api} items={items} />}
-    </>
+    </DemoPage>
   );
 }
 

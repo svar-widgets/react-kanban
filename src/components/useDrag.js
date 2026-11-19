@@ -8,7 +8,14 @@ export class DndState {
     this.pointer = { x: 0, y: 0 };
     this.offset = { x: 0, y: 0 };
     this.target = null;
+    /** Target of the external `cardProjection`; never touched by internal drag. */
+    this.external = null;
     this._notify = null;
+  }
+
+  /** Placeholder target: an active internal drag wins even without a target. */
+  get preview() {
+    return this.active ? this.target : this.external;
   }
 
   reset() {

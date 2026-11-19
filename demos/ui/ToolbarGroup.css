@@ -1,0 +1,20 @@
+.wx-demo-group {
+  display: flex;
+  align-items: center;
+  gap: var(--wx-padding);
+  padding: 0 calc(var(--wx-padding) * 2);
+}
+.wx-demo-group:first-child {
+  padding-left: 0;
+}
+.wx-demo-group:not(:first-child):not(.wx-right) {
+  border-left: var(--wx-border);
+}
+.wx-demo-group.wx-right {
+  margin-left: auto;
+  padding-right: 0;
+}
+.wx-demo-group-label {
+  color: var(--wx-color-font-alt);
+  white-space: nowrap;
+}

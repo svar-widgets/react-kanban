@@ -1,9 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
-import { HashRouter, NavLink, useNavigate } from 'react-router-dom';
+import {
+  HashRouter,
+  NavLink,
+  useLocation,
+  useNavigate,
+} from 'react-router-dom';
 import { Willow } from '@svar-ui/react-core';
 
 import Router from './Router';
-import { links } from '../routes';
+import { getLinks, findLink } from './helpers';
 import { GitHubLogoIcon, LogoIcon } from '../assets/icons';
 import './Index.css';
 
@@ -16,15 +21,16 @@ function DemoExplorerContent({
   Segmented,
 }) {
   const navigate = useNavigate();
+  const links = getLinks();
   const [skin, setSkin] = useState(skins[0].id);
   const [show, setShow] = useState(true);
 
-  const flatLinks = links.flatMap((g) => g.items);
-
-  const currentPath = window.location.hash.slice(1);
-  const parts = currentPath.split('/');
-  const currentPage = `/${parts[1]}/:skin`;
-  const matched = flatLinks.find((a) => a[0] === currentPage);
+  const location = useLocation();
+  const parts = location.pathname.split('/');
+  // an alias resolves to its canonical entry, so the page segment,
+  // title and code link follow the canonical route
+  const matched = findLink(`/${parts[1]}/:skin`);
+  const page = matched ? matched[0].split('/')[1] : parts[1];
   const title = matched ? matched[1] : '';
   const baseLink =
     'https://github.com/svar-widgets/react-' +
@@ -33,20 +39,20 @@ function DemoExplorerContent({
 
   const props = matched ? matched[3] || {} : {};
   const name = props.file || matched?.[1] || '';
-  const githubLink = `${baseLink}${name}.jsx`;
+  // Pro samples are not in the public GitHub mirror, so they get no link
+  const githubLink = props.pro
+    ? null
+    : `${baseLink}${name.replace(/\s+/g, '')}.jsx`;
 
   const handleRouteChange = useCallback((path) => {
-    const parts = path.split('/');
-    const newSkin = parts[2];
-    setSkin(newSkin);
+    const newSkin = path.split('/')[2];
+    if (newSkin) setSkin(newSkin);
   }, []);
 
   const handleSkinChange = ({ value }) => {
     setSkin(value);
-    const currentPath = window.location.hash.slice(1);
-    const parts = currentPath.split('/');
-    if (parts[1]) {
-      navigate(`/${parts[1]}/${value}`);
+    if (page) {
+      navigate(`/${page}/${value}`);
     }
   };
 
@@ -58,7 +64,8 @@ function DemoExplorerContent({
     document.body.className = `wx-${skin}-theme`;
   }, [skin]);
 
-  const SkinComponent = skins.find((s) => s.id === skin).Component;
+  const SkinComponent = (skins.find((s) => s.id === skin) || skins[0])
+    .Component;
 
   return (
     <div className="wx-demos layout">
@@ -142,14 +149,16 @@ function DemoExplorerContent({
                 onChange={handleSkinChange}
               />
             </div>
-            <div className="wx-demos btn-box">
-              <a href={githubLink} target="_blank" rel="noopener noreferrer">
-                <Button type="secondary" css="toggle-btn">
-                  <img src={GitHubLogoIcon} alt="GitHub icon" />
-                  See code on GitHub
-                </Button>
-              </a>
-            </div>
+            {githubLink && (
+              <div className="wx-demos btn-box">
+                <a href={githubLink} target="_blank" rel="noopener noreferrer">
+                  <Button type="secondary" css="toggle-btn">
+                    <img src={GitHubLogoIcon} alt="GitHub icon" />
+                    See code on GitHub
+                  </Button>
+                </a>
+              </div>
+            )}
           </div>
         </div>
 

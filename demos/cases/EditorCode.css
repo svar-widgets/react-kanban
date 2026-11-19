@@ -1,0 +1,6 @@
+.wx-sidearea .wx-editor-kanban.wx-editor-code {
+  width: 640px;
+}
+.wx-editor-code .wx-codemirror .cm-editor {
+  height: 320px;
+}

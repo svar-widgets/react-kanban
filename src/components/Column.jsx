@@ -1,5 +1,7 @@
 import { useContext, useMemo, useRef, useEffect } from 'react';
 import { context } from '@svar-ui/react-core';
+import { setID } from '@svar-ui/lib-dom';
+import { useStore } from '@svar-ui/lib-react';
 import CardList from './CardList.jsx';
 import { createColumnCard } from '../directives/dblclick.js';
 import { KanbanApiContext } from '../context.js';
@@ -10,16 +12,18 @@ const scope = 'wx-aadf0UPJ';
 function Column(props) {
   const {
     column,
+    headerOnly = false,
     readonly = false,
     cardContent,
     cardShape,
     contentVisible,
-    requestVisible,
     virtualizeCards,
     estimatedCardHeight,
     cardOverscan,
     fixedColumnWidth,
     registerColumn,
+    cardListStart,
+    cardListEnd,
     cardCss,
     columnCss,
   } = props;
@@ -30,32 +34,19 @@ function Column(props) {
   );
 
   const store = useContext(KanbanApiContext);
-  const columnAccessor = useMemo(
-    () => store.getState().columnAccessor,
-    [store],
-  );
+  const columnAccessor = useStore(store, 'columnAccessor');
   const locale = useContext(context.i18n);
   const _ = locale.getGroup('kanban');
 
   const root = useRef(null);
 
-  const cardLimitVisible = useMemo(
-    () => typeof column.cardLimit === 'number' || column.cardLimit === true,
-    [column.cardLimit],
-  );
-  const cardLimitNumber = useMemo(
-    () => (typeof column.cardLimit === 'number' ? column.cardLimit : null),
-    [column.cardLimit],
-  );
-  const addCardVisible = useMemo(
-    () => column.addCard !== false && !readonly,
-    [column.addCard, readonly],
-  );
+  const addCardVisible = column.addCard !== false && !readonly;
 
   function toggleCollapsed() {
     store.exec('update-column', {
       id: column.id,
       column: { collapsed: !column.collapsed },
+      skipProvider: true,
     });
   }
 
@@ -81,69 +72,84 @@ function Column(props) {
     column.css ?? '',
     dynamicColumnCss,
     column.collapsed ? 'wx-collapsed' : '',
-    column.overLimit ? 'wx-over-limit' : '',
     scope,
   ]
     .filter(Boolean)
     .join(' ');
 
+  const sized = column.width !== undefined;
+  const sectionStyle = {
+    boxSizing: sized ? 'border-box' : undefined,
+    flex: !column.collapsed && sized ? `0 0 ${column.width}px` : undefined,
+    minWidth: !column.collapsed && sized ? `${column.width}px` : undefined,
+  };
+
   return (
-    <section className={sectionClassName} ref={root}>
+    <section
+      className={sectionClassName}
+      data-column-id={column.collapsed ? setID(column.id) : undefined}
+      style={sectionStyle}
+      ref={root}
+    >
       {column.collapsed ? (
         <>
           <button
             type="button"
             className={`wx-expand ${scope}`}
             onClick={toggleCollapsed}
-            aria-label={_('Expand column')}
+            aria-expanded={false}
+            title={column.label}
+            aria-label={`${_('Expand column')} ${column.label}`}
           >
             <i className={`wx-icon wxi-angle-right ${scope}`}></i>
           </button>
-          <div className={`wx-body ${scope}`}>
-            <h3 className={`wx-title ${scope}`}>
-              <span className={scope}>{column.label}</span>
-              {cardLimitVisible && (
-                <span
-                  className={[
-                    'wx-count',
-                    column.overLimit ? 'wx-over' : '',
-                    scope,
-                  ]
-                    .filter(Boolean)
-                    .join(' ')}
-                >
-                  {column.cards.length}
-                  {cardLimitNumber != null ? `/${cardLimitNumber}` : ''}
-                </span>
-              )}
-            </h3>
-          </div>
+          {!headerOnly && (
+            <div className={`wx-body ${scope}`}>
+              <h3 className={`wx-title ${scope}`}>
+                <span className={scope}>{column.label}</span>
+              </h3>
+            </div>
+          )}
         </>
       ) : (
         <>
-          <header className={`wx-column-header ${scope}`}>
+          <header
+            className={`wx-column-header ${scope}`}
+            data-column-id={setID(column.id)}
+          >
             <button
               type="button"
               className={`wx-toggle ${scope}`}
               onClick={toggleCollapsed}
+              aria-expanded={true}
               aria-label={_('Collapse column')}
             >
               <i className={`wx-icon wxi-angle-left ${scope}`}></i>
             </button>
             <h3 className={`wx-title ${scope}`}>{column.label}</h3>
-            {cardLimitVisible && (
-              <span
-                className={[
-                  'wx-count',
-                  column.overLimit ? 'wx-over' : '',
-                  scope,
-                ]
-                  .filter(Boolean)
-                  .join(' ')}
+            {column.summaries.length > 0 && (
+              <div className={`wx-column-summaries ${scope}`}>
+                {column.summaries.map((summary) => (
+                  <span
+                    key={summary.id}
+                    className={`wx-column-summary ${summary.css ?? ''} ${scope}`}
+                    title={summary.text}
+                  >
+                    {summary.text}
+                  </span>
+                ))}
+              </div>
+            )}
+            {column.menu && (
+              <button
+                type="button"
+                className={`wx-column-menu ${scope}`}
+                data-column-menu={setID(column.id)}
+                aria-label={`${_('Column menu')} ${column.label}`}
+                aria-haspopup="menu"
               >
-                {column.cards.length}
-                {cardLimitNumber != null ? `/${cardLimitNumber}` : ''}
-              </span>
+                <i className={`wx-icon wxi-dots-h ${scope}`}></i>
+              </button>
             )}
             {addCardVisible && (
               <button
@@ -156,18 +162,22 @@ function Column(props) {
               </button>
             )}
           </header>
-          <CardList
-            column={column}
-            readonly={readonly}
-            cardContent={cardContent}
-            cardShape={cardShape}
-            contentVisible={contentVisible}
-            virtualizeCards={virtualizeCards}
-            estimatedCardHeight={estimatedCardHeight}
-            cardOverscan={cardOverscan}
-            fixedColumnWidth={fixedColumnWidth}
-            cardCss={cardCss}
-          />
+          {!headerOnly && (
+            <CardList
+              column={column}
+              readonly={readonly}
+              cardContent={cardContent}
+              cardShape={cardShape}
+              contentVisible={contentVisible}
+              virtualizeCards={virtualizeCards}
+              estimatedCardHeight={estimatedCardHeight}
+              cardOverscan={cardOverscan}
+              fixedColumnWidth={fixedColumnWidth}
+              cardListStart={cardListStart}
+              cardListEnd={cardListEnd}
+              cardCss={cardCss}
+            />
+          )}
         </>
       )}
     </section>

@@ -1,0 +1,30 @@
+.wx-card-list-start.wx-aaekGQoR,
+.wx-card-list-end.wx-aaekGQoR {
+  display: flow-root;
+}
+
+.wx-column-cards.wx-aaekGQoR {
+  display: flex;
+  flex-direction: column;
+  gap: var(--wx-card-gap, 8px);
+  padding: 8px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+}
+
+.wx-column-cards.wx-aaekGQoR > div {
+  flex-shrink: 0;
+}
+
+.wx-drop-placeholder.wx-aaekGQoR {
+  border: 1px dashed var(--wx-kanban-border-color);
+  border-radius: var(--wx-border-radius);
+  background: var(--wx-kanban-drop-placeholder-bg);
+  box-sizing: border-box;
+  pointer-events: none;
+}
+
+.wx-dragging.wx-aaekGQoR {
+  display: none;
+}

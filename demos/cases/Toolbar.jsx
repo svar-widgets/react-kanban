@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { getData, getStyledData } from '../data.js';
 import { Kanban, Toolbar, Editor } from '../../src/index.js';
-import { Layout } from '@svar-ui/react-layout';
+import { DemoPage } from '../ui/index.js';
+import { getData, getStyledData } from '../data.js';
 
 const { cards } = getStyledData();
 const { columns } = getData();
@@ -9,17 +9,13 @@ const { columns } = getData();
 function ToolbarDemo() {
   const [api, setApi] = useState(null);
 
+  // the built-in toolbar: "+" adds a card in the editor, the menu sorts
   return (
-    <Layout>
-      <Toolbar api={api} sort={true} />
-      <Kanban
-        init={(obj) => setApi(obj)}
-        cards={cards}
-        columns={columns}
-        history={true}
-      />
+    <DemoPage>
+      <Toolbar api={api} add={true} sort={true} />
+      <Kanban init={(obj) => setApi(obj)} cards={cards} columns={columns} />
       {api && <Editor api={api} />}
-    </Layout>
+    </DemoPage>
   );
 }
 

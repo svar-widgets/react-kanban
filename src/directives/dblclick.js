@@ -1,3 +1,5 @@
+import { writeMembership } from '@svar-ui/kanban-store';
+
 export function dblclick(node, initial) {
   let params = initial;
 
@@ -6,7 +8,13 @@ export function dblclick(node, initial) {
     if (e.target !== node) return;
 
     const base = { label: 'New card' };
-    const card = createColumnCard(base, params.columnAccessor, params.column);
+    let card = createColumnCard(base, params.columnAccessor, params.column);
+    if (params.swimlane !== undefined)
+      card = createColumnCard(
+        card,
+        params.store.getState().swimlaneAccessor,
+        params.swimlane,
+      );
 
     void params.store.exec('add-card', { card });
   }
@@ -24,7 +32,5 @@ export function dblclick(node, initial) {
 }
 
 export function createColumnCard(card, accessor, column) {
-  return typeof accessor === 'string'
-    ? { ...card, [accessor]: column }
-    : accessor.set(card, column);
+  return writeMembership(card, accessor, column);
 }

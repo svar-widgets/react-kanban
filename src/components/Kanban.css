@@ -1,0 +1,4 @@
+/* TEMPORARY (remove when fixed in @svar/react-menu). */
+[data-menu-ignore] {
+  display: contents;
+}

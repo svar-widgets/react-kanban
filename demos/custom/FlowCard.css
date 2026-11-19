@@ -1,0 +1,19 @@
+.flow-card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 0;
+  height: 100%;
+}
+.flow-card .team {
+  color: var(--wx-color-font-alt);
+  font-size: var(--wx-font-size-sm);
+}
+.flow-card strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.flow-card .effort {
+  margin-top: auto;
+  color: var(--wx-color-primary);
+}

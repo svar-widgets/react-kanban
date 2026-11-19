@@ -1,0 +1,13 @@
+.wx-demo-toggle {
+  display: flex;
+  align-items: center;
+  gap: calc(var(--wx-padding) * 0.75);
+  white-space: nowrap;
+}
+.wx-demo-toggle-label {
+  cursor: pointer;
+}
+.wx-demo-toggle.wx-disabled .wx-demo-toggle-label {
+  color: var(--wx-color-font-disabled);
+  cursor: not-allowed;
+}

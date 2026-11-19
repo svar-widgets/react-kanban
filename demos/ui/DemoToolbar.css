@@ -1,0 +1,9 @@
+.wx-demo-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: calc(var(--wx-padding) * 1.5) 0;
+  padding: var(--wx-padding) calc(var(--wx-padding) * 2);
+  border-bottom: var(--wx-border);
+  background: var(--wx-background);
+}

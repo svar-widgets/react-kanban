@@ -1,8 +1,21 @@
 .custom-card {
+  --custom-card-badge-bg: #e7f2ff;
+  --custom-card-badge-color: #075b9c;
+  --custom-card-track: #e2e7ee;
+  --custom-card-bar: #2f8fed;
+  --custom-card-chip-bg: #f1f3f6;
   display: flex;
   flex-direction: column;
   gap: 8px;
   min-width: 0;
+}
+
+.wx-willow-dark-theme .custom-card {
+  --custom-card-badge-bg: #1f3a57;
+  --custom-card-badge-color: #9ccbff;
+  --custom-card-track: #3a3f4b;
+  --custom-card-bar: #4aa3ff;
+  --custom-card-chip-bg: #343843;
 }
 
 .custom-card-top,
@@ -22,8 +35,8 @@
 .custom-card-priority {
   border-radius: 4px;
   padding: 1px 6px;
-  background: #e7f2ff;
-  color: #075b9c;
+  background: var(--custom-card-badge-bg);
+  color: var(--custom-card-badge-color);
   font-weight: 600;
 }
 
@@ -32,6 +45,10 @@
 .custom-card-progress-value,
 .custom-card-meta {
   color: var(--wx-color-font-alt, #666a76);
+}
+
+.custom-card-top .custom-card-menu {
+  margin-left: auto;
 }
 
 .custom-card-date {
@@ -65,14 +82,14 @@
   height: 6px;
   border-radius: 3px;
   overflow: hidden;
-  background: #e2e7ee;
+  background: var(--custom-card-track);
 }
 
 .custom-card-progress span {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: #2f8fed;
+  background: var(--custom-card-bar);
 }
 
 .custom-card-progress-value {
@@ -89,5 +106,5 @@
 .custom-card-meta span {
   border-radius: 4px;
   padding: 1px 6px;
-  background: #f1f3f6;
+  background: var(--custom-card-chip-bg);
 }

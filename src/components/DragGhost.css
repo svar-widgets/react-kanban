@@ -12,4 +12,8 @@
 
 .wx-ghost.wx-aabpM8ZK .wx-card {
   cursor: grabbing;
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  overflow: hidden;
 }

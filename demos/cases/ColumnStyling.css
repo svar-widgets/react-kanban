@@ -1,0 +1,25 @@
+/* scopes the global rules below without touching the layout */
+.styling-demo {
+  display: contents;
+}
+
+/* static column.css: a colored header stripe per column */
+.styling-demo .wx-column.col-todo .wx-column-header {
+  box-shadow: inset 0 3px 0 #3b82f6;
+}
+.styling-demo .wx-column.col-doing .wx-column-header {
+  box-shadow: inset 0 3px 0 #f59e0b;
+}
+.styling-demo .wx-column.col-done .wx-column-header {
+  box-shadow: inset 0 3px 0 #22c55e;
+}
+
+/* dynamic columnCss result */
+.styling-demo .wx-column.col-full {
+  --wx-kanban-column-bg: rgba(239, 68, 68, 0.12);
+  background: rgba(239, 68, 68, 0.12);
+}
+.styling-demo .wx-column.col-full .wx-column-header,
+.styling-demo .wx-column.col-full .wx-body {
+  background: transparent;
+}

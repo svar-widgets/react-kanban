@@ -5,7 +5,7 @@
   /* kanban surfaces */
   --wx-kanban-bg: var(--wx-background-alt);
   --wx-kanban-column-bg: #ebecef;
-  --wx-kanban-column-over-limit-bg: #fde1d6;
+  --wx-kanban-lane-bg: #ecf2ff;
   --wx-kanban-card-bg: var(--wx-background);
   --wx-kanban-tag-bg: var(--wx-background-alt);
   --wx-kanban-avatar-bg: #d0d4dc;

@@ -1,0 +1,13 @@
+.wx-demo-stat {
+  display: inline-flex;
+  align-items: baseline;
+  gap: calc(var(--wx-padding) * 0.5);
+  white-space: nowrap;
+}
+.wx-demo-stat-label {
+  color: var(--wx-color-font-alt);
+}
+.wx-demo-stat-value {
+  font-weight: var(--wx-font-weight-md);
+  font-variant-numeric: tabular-nums;
+}

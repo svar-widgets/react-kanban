@@ -21,7 +21,7 @@ export const card = {
 export function getData() {
   const columns = [
     { id: 'todo', label: 'To Do' },
-    { id: 'doing', label: 'In Progress', cardLimit: 2, addCard: false },
+    { id: 'doing', label: 'In Progress', addCard: false },
     { id: 'done', label: 'Done', addCard: false },
   ];
 
@@ -210,7 +210,7 @@ export function getGroupByData() {
 export function getStyledData() {
   const columns = [
     { id: 'todo', label: 'To Do', css: 'col-todo' },
-    { id: 'doing', label: 'In Progress', css: 'col-doing', cardLimit: 3 },
+    { id: 'doing', label: 'In Progress', css: 'col-doing' },
     { id: 'done', label: 'Done', css: 'col-done' },
   ];
 

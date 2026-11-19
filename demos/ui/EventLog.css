@@ -1,0 +1,33 @@
+.wx-demo-log {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  border-top: var(--wx-border);
+  background: var(--wx-background-alt);
+}
+.wx-demo-log-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 calc(var(--wx-padding) * 2);
+}
+.wx-demo-log-title {
+  font-weight: var(--wx-font-weight-md);
+}
+.wx-demo-log-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 calc(var(--wx-padding) * 2) var(--wx-padding);
+  font-size: var(--wx-font-size-sm);
+  line-height: var(--wx-line-height-sm);
+}
+.wx-demo-log-entry {
+  display: flex;
+  gap: var(--wx-padding);
+}
+.wx-demo-log-time,
+.wx-demo-log-empty {
+  color: var(--wx-color-font-alt);
+  font-variant-numeric: tabular-nums;
+}

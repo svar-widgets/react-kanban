@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { CardMenuButton } from '../../src/index.js';
 import './CustomCard.css';
 
 function countOf(value) {
@@ -49,6 +50,8 @@ function CustomCard({ card }) {
           <span className="custom-card-priority">P{card.priority}</span>
         ) : null}
         {deadline ? <span className="custom-card-date">{deadline}</span> : null}
+        {/* opens the CardActionMenu that wraps <Kanban> */}
+        <CardMenuButton card={card} css="custom-card-menu" />
       </div>
 
       <strong className="custom-card-title">

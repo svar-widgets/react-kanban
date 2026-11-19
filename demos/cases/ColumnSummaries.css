@@ -1,0 +1,16 @@
+/* scopes the global rules below without touching the layout */
+.summary-demo {
+  display: contents;
+}
+
+/* summary css hooks: each one styles its own tag */
+.summary-demo .wx-column-summary.effort-over-capacity,
+.summary-demo .wx-column-summary.capacity-exceeded {
+  color: var(--wx-color-danger);
+}
+
+.summary-demo .wx-column-summary.blocked-warning {
+  color: #92400e;
+  background: #fef3c7;
+  border-color: #fcd34d;
+}

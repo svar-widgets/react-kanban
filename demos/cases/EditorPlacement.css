@@ -1,0 +1,11 @@
+/* an inline editor takes its place next to the board */
+.area {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+.area .wx-kanban {
+  flex: 1;
+  min-width: 0;
+}

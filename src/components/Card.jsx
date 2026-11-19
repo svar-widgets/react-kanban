@@ -1,6 +1,8 @@
 import { useContext, useMemo } from 'react';
 import { context } from '@svar-ui/react-core';
+import { dateToString } from '@svar-ui/lib-dom';
 import Avatar from './Avatar.jsx';
+import CardMenuButton from './CardMenuButton.jsx';
 import { getPriorityOptions } from '../defaults.js';
 import './Card.css';
 
@@ -57,36 +59,19 @@ function resolveItems(values, collection, max) {
     : items;
 }
 
-function toDate(value) {
-  if (value instanceof Date)
-    return Number.isNaN(value.getTime()) ? null : value;
-  if (typeof value === 'string' || typeof value === 'number') {
-    const d = new Date(value);
-    return Number.isNaN(d.getTime()) ? null : d;
-  }
-  return null;
-}
-
-function pad2(n) {
-  return n < 10 ? '0' + n : String(n);
-}
-
-function formatDeadline(value, format) {
-  const d = toDate(value);
-  if (!d) return null;
-  if (!format) return d.toLocaleDateString();
-  return format
-    .replace(/YYYY/g, String(d.getFullYear()))
-    .replace(/MM/g, pad2(d.getMonth() + 1))
-    .replace(/DD/g, pad2(d.getDate()))
-    .replace(/HH/g, pad2(d.getHours()))
-    .replace(/mm/g, pad2(d.getMinutes()));
+// string formats use the wx locale tokens ("%m/%d/%Y"); default is the locale dateFormat
+function formatDeadline(i18n, value, format) {
+  if (!(value instanceof Date)) return null;
+  if (typeof format === 'function') return format(value);
+  const { calendar, formats } = i18n.getRaw();
+  return dateToString(format || formats.dateFormat, calendar)(value);
 }
 
 function Card(props) {
   const { card, cardShape } = props;
 
-  const _ = useContext(context.i18n).getGroup('kanban');
+  const i18n = useContext(context.i18n);
+  const _ = i18n.getGroup('kanban');
 
   const priorityConfig = useMemo(
     () => configOf(cardShape.priority),
@@ -140,9 +125,9 @@ function Card(props) {
   const deadline = useMemo(
     () =>
       cardShape.deadline
-        ? formatDeadline(card.deadline, deadlineConfig?.format)
+        ? formatDeadline(i18n, card.deadline, deadlineConfig?.format)
         : null,
-    [cardShape.deadline, card.deadline, deadlineConfig],
+    [i18n, cardShape.deadline, card.deadline, deadlineConfig],
   );
 
   return (
@@ -166,16 +151,7 @@ function Card(props) {
           {deadline && (
             <span className={`wx-deadline ${scope}`}>{deadline}</span>
           )}
-          {cardShape.menu && (
-            <button
-              type="button"
-              className={`wx-menu ${scope}`}
-              data-action="menu"
-              aria-label={_('Card menu')}
-            >
-              <i className={`wx-icon wxi-dots-h ${scope}`}></i>
-            </button>
-          )}
+          {cardShape.menu && <CardMenuButton card={card} />}
         </div>
       )}
 
@@ -186,14 +162,7 @@ function Card(props) {
               {card.label}
 
               {cardShape.menu && !priority && !deadline && (
-                <button
-                  type="button"
-                  className={`wx-menu ${scope}`}
-                  data-action="menu"
-                  aria-label={_('Card menu')}
-                >
-                  <i className={`wx-icon wxi-dots-h ${scope}`}></i>
-                </button>
+                <CardMenuButton card={card} />
               )}
             </div>
           )}

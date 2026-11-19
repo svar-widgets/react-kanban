@@ -1,34 +1,41 @@
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 import {
   Routes,
   Route,
   Navigate,
   useLocation,
-  useNavigate,
+  useParams,
 } from 'react-router-dom';
-import { links } from '../routes';
+import { getFlatLinks, getAliases, withSkin } from './helpers';
 
-const flatLinks = links.flatMap((g) => g.items);
+const flatLinks = getFlatLinks();
+const defaultRoute = withSkin(flatLinks[0][0], 'willow');
+
+// an alias opens the canonical route with the same skin
+function AliasRedirect({ route }) {
+  const { skin } = useParams();
+  return <Navigate to={withSkin(route, skin)} replace />;
+}
 
 export default function Router({ onRouteChange }) {
   const location = useLocation();
-  const navigate = useNavigate();
 
-  const lastRef = useRef(location.pathname);
   useEffect(() => {
-    if (lastRef.current === location.pathname) return;
-    if (location.pathname === '/') {
-      navigate('/base/willow', { replace: true });
-    } else {
-      onRouteChange(location.pathname);
-    }
-  }, [location.pathname, onRouteChange, navigate]);
+    if (location.pathname !== '/') onRouteChange(location.pathname);
+  }, [location.pathname, onRouteChange]);
 
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/base/willow" replace />} />
+      <Route path="/" element={<Navigate to={defaultRoute} replace />} />
       {flatLinks.map(([path, , Component]) => (
         <Route key={path} path={path} element={<Component />} />
+      ))}
+      {[...getAliases()].map(([alias, a]) => (
+        <Route
+          key={alias}
+          path={alias}
+          element={<AliasRedirect route={a[0]} />}
+        />
       ))}
     </Routes>
   );

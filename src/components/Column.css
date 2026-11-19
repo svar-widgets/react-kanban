@@ -21,11 +21,6 @@
   align-items: center;
 }
 
-.wx-over-limit.wx-aadf0UPJ .wx-column-header,
-.wx-over-limit.wx-aadf0UPJ > .wx-body {
-  background: var(--wx-kanban-column-over-limit-bg);
-}
-
 .wx-column-header.wx-aadf0UPJ {
   display: flex;
   align-items: center;
@@ -43,17 +38,31 @@
   white-space: nowrap;
 }
 
-.wx-count.wx-aadf0UPJ {
+.wx-column-summaries.wx-aadf0UPJ {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  max-width: 60%;
+  overflow: hidden;
+}
+
+.wx-column-summary.wx-aadf0UPJ {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 1px 6px;
+  border: 1px solid var(--wx-kanban-border-color);
+  border-radius: var(--wx-border-radius);
+  background: var(--wx-kanban-tag-bg);
   font-size: var(--wx-font-size-sm);
+  line-height: var(--wx-line-height-sm);
   color: var(--wx-color-font-alt);
 }
 
-.wx-over.wx-aadf0UPJ {
-  color: var(--wx-color-danger);
-  font-weight: var(--wx-font-weight-md);
-}
-
 .wx-add.wx-aadf0UPJ,
+.wx-column-menu.wx-aadf0UPJ,
 .wx-toggle.wx-aadf0UPJ {
   display: inline-flex;
   align-items: center;
@@ -62,6 +71,7 @@
   border: none;
   border-radius: var(--wx-icon-border-radius);
   padding: 0;
+  flex: 0 0 18px;
   width: 18px;
   height: 18px;
   cursor: pointer;
@@ -70,14 +80,15 @@
 }
 
 .wx-add.wx-aadf0UPJ:hover,
+.wx-column-menu.wx-aadf0UPJ:hover,
 .wx-toggle.wx-aadf0UPJ:hover {
   background: var(--wx-background-hover);
 }
 
 .wx-add.wx-aadf0UPJ:focus,
+.wx-column-menu.wx-aadf0UPJ:focus,
 .wx-toggle.wx-aadf0UPJ:focus {
   outline: none;
-  border: 1px solid var(--wx-color-primary);
 }
 
 .wx-expand.wx-aadf0UPJ {
@@ -108,7 +119,6 @@
   bottom: 0px;
   display: flex;
   align-items: center;
-  gap: 8px;
   max-width: calc(var(--wx-kanban-scroll-height, 100vh) - 96px);
   transform: rotate(-90deg);
   transform-origin: left center;
@@ -118,9 +128,4 @@
   min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.wx-collapsed.wx-aadf0UPJ .wx-count {
-  flex: 0 0 auto;
-  font-weight: var(--wx-font-weight);
 }

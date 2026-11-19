@@ -1,0 +1,17 @@
+.responsive-frame {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+/* a phone-sized frame when Mobile is forced on a wide screen */
+.responsive-phone {
+  max-width: 480px;
+  margin: 10px;
+  border: var(--wx-border);
+  border-width: 16px;
+  border-radius: 16px;
+  box-sizing: border-box;
+}

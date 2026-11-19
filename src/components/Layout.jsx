@@ -7,11 +7,14 @@ import {
   useContext,
 } from 'react';
 import { delegateClick, hotkeys, locate, locateID } from '@svar-ui/lib-dom';
+import { useStore } from '@svar-ui/lib-react';
 import { Popup } from '@svar-ui/react-core';
 import { context } from '@svar-ui/react-core';
 
 import Column from './Column.jsx';
-import ContextMenu from './ContextMenu.jsx';
+import Stack from './Stack.jsx';
+const Swimlanes = Column; // pro feature, never rendered: MIT has no lanes
+const useCardProjection = () => {}; // pro feature
 import DragGhost from './DragGhost.jsx';
 import { useCardOverlay } from './useCardOverlay.js';
 import { cardDrag } from '../directives/drag.js';
@@ -34,6 +37,14 @@ const str2style = (s) => {
   return obj;
 };
 
+function sameSet(a, b) {
+  if (a.size !== b.size) return false;
+  for (const value of a) {
+    if (!b.has(value)) return false;
+  }
+  return true;
+}
+
 function Layout(props) {
   const {
     readonly = false,
@@ -42,11 +53,14 @@ function Layout(props) {
     cardShape,
     tooltip,
     cardPopup,
+    cardListStart,
+    cardListEnd,
     cardCss,
     columnCss,
+    cardProjection = null,
   } = props;
 
-  const columnScroll = render?.columnScroll ?? true;
+  const stack = render?.layout === 'stack';
   const fixedColumnWidth = render?.fixedColumnWidth ?? true;
   const virtualizeCards = render?.virtualizeCards ?? false;
   const virtualizeColumns = render?.virtualizeColumns ?? false;
@@ -55,6 +69,13 @@ function Layout(props) {
   const columnOverscan = render?.columnOverscan ?? 1;
 
   const store = useContext(KanbanApiContext);
+  const viewData = useStore(store, 'viewData');
+  const hasSwimlanes = viewData.swimlanes.length > 0;
+  // Lanes and the stack layout override the effective scroll mode without
+  // touching the caller's value, so leaving either restores the preference.
+  const columnScroll =
+    !stack && !hasSwimlanes && (render?.columnScroll ?? true);
+
   const brandmark = useMemo(() => store.getBrandmark(), [store]);
 
   const locale = useContext(context.i18n);
@@ -63,29 +84,18 @@ function Layout(props) {
   const dnd = useContext(DndContext);
 
   const rootRef = useRef(null);
-  const scrollRef = useRef(null);
   const boardRef = useRef(null);
-  const cardMenuRef = useRef(null);
+  const scrollRef = useRef(null);
+  // the scroll element is also kept in state, so Stack and Swimlanes receive it
+  const [scroll, setScroll] = useState(null);
+  const scrollCallbackRef = useCallback((node) => {
+    scrollRef.current = node;
+    setScroll(node);
+  }, []);
 
   const [visibleColumnIds, setVisibleColumnIds] = useState(() => new Set());
   const visibilityFrameRef = useRef(0);
   const columnElementsRef = useRef(new Map());
-
-  // Subscribe to reactive viewData store
-  const viewDataStore = useMemo(
-    () => store.getReactiveState().viewData,
-    [store],
-  );
-  const [viewData, setViewData] = useState(
-    () => viewDataStore.get?.() ?? store.getState().viewData,
-  );
-
-  useEffect(() => {
-    const unsub = viewDataStore.subscribe((v) => {
-      setViewData(v);
-    });
-    return unsub;
-  }, [viewDataStore]);
 
   // Provide scroll container context
   const getScrollContainer = useCallback(
@@ -95,33 +105,35 @@ function Layout(props) {
 
   // ---- Column visibility (virtualization) ----
 
-  function sameSet(a, b) {
-    if (a.size !== b.size) return false;
-    for (const value of a) {
-      if (!b.has(value)) return false;
-    }
-    return true;
-  }
+  // latest values for callbacks registered once
+  const latest = useRef(null);
+  latest.current = {
+    stack,
+    virtualizeColumns,
+    columnOverscan,
+    columns: viewData.columns,
+    visibleColumnIds,
+  };
 
-  const visibleColumnIdsRef = useRef(visibleColumnIds);
-  visibleColumnIdsRef.current = visibleColumnIds;
-
-  const setVisibleColumnsStable = useCallback((next) => {
-    if (!sameSet(visibleColumnIdsRef.current, next)) {
+  const setVisibleColumns = useCallback((next) => {
+    if (!sameSet(latest.current.visibleColumnIds, next)) {
+      latest.current.visibleColumnIds = next;
       setVisibleColumnIds(next);
     }
   }, []);
 
   const updateColumnVisibility = useCallback(() => {
+    const { stack, virtualizeColumns, columnOverscan, columns } =
+      latest.current;
+    if (stack) return;
     const scroll = scrollRef.current;
     if (!virtualizeColumns || !scroll) {
-      setVisibleColumnsStable(new Set());
+      setVisibleColumns(new Set());
       return;
     }
 
-    const columns = viewData.columns;
     if (!columns.length) {
-      setVisibleColumnsStable(new Set());
+      setVisibleColumns(new Set());
       return;
     }
 
@@ -141,7 +153,7 @@ function Layout(props) {
     }
 
     if (first === -1 || last === -1) {
-      setVisibleColumnsStable(new Set());
+      setVisibleColumns(new Set());
       return;
     }
 
@@ -153,16 +165,11 @@ function Layout(props) {
     for (let i = first; i <= last; i++) {
       next.add(columns[i].id);
     }
-    setVisibleColumnsStable(next);
-  }, [
-    virtualizeColumns,
-    viewData.columns,
-    columnOverscan,
-    setVisibleColumnsStable,
-  ]);
+    setVisibleColumns(next);
+  }, [setVisibleColumns]);
 
   const scheduleColumnVisibility = useCallback(() => {
-    if (visibilityFrameRef.current) return;
+    if (latest.current.stack || visibilityFrameRef.current) return;
     visibilityFrameRef.current = requestAnimationFrame(() => {
       visibilityFrameRef.current = 0;
       updateColumnVisibility();
@@ -216,6 +223,7 @@ function Layout(props) {
   }
 
   function handleCardClick(id, ev) {
+    // suppress the click that fires right after a pointerup ends a drag
     if (readonly || dnd?.active) return;
     if (cardPopup && id != null) {
       const target = ev?.target;
@@ -225,14 +233,17 @@ function Layout(props) {
         return;
       }
     }
+
     selectCard(id);
   }
 
   function handleCardKey(e) {
     if (readonly) return;
 
-    e?.preventDefault();
     const active = document.activeElement;
+    if (!(active instanceof window.HTMLElement) || !active.matches('.wx-card'))
+      return;
+    e?.preventDefault();
     const id = active ? locateID(active) : null;
     if (cardPopup && id != null && active) {
       overlay.handleCardPopup({
@@ -244,21 +255,9 @@ function Layout(props) {
     selectCard(id);
   }
 
-  const cardMenuConfig = useMemo(
-    () =>
-      cardShape?.menu
-        ? typeof cardShape.menu === 'object'
-          ? cardShape.menu
-          : {}
-        : null,
-    [cardShape?.menu],
-  );
-
-  function handleCardMenu(id, ev) {
-    if (readonly || id == null || !cardMenuRef.current) return;
-    ev.stopPropagation();
-    cardMenuRef.current.show(ev, id);
-  }
+  // handlers registered once on the board read the latest render through refs
+  const handlersRef = useRef(null);
+  handlersRef.current = { handleCardClick, handleCardKey };
 
   // ---- Effects for scheduling column visibility ----
   useEffect(() => {
@@ -273,19 +272,22 @@ function Layout(props) {
 
   // ResizeObserver for column visibility
   useEffect(() => {
-    const scroll = scrollRef.current;
-    if (!scroll || !virtualizeColumns || typeof ResizeObserver === 'undefined')
+    if (
+      stack ||
+      !scroll ||
+      !virtualizeColumns ||
+      typeof ResizeObserver === 'undefined'
+    )
       return;
 
     const observer = new ResizeObserver(() => scheduleColumnVisibility());
     observer.observe(scroll);
 
     return () => observer.disconnect();
-  }, [virtualizeColumns, scheduleColumnVisibility]);
+  }, [stack, scroll, virtualizeColumns, scheduleColumnVisibility]);
 
   // Scroll height CSS variable + ResizeObserver
   useEffect(() => {
-    const scroll = scrollRef.current;
     if (!scroll) return;
 
     updateScrollHeightVar();
@@ -302,7 +304,16 @@ function Layout(props) {
       observer.disconnect();
       window.removeEventListener('resize', updateScrollHeightVar);
     };
-  }, []);
+  }, [scroll]);
+
+  useCardProjection({
+    board: boardRef,
+    // The stack layout has no drag, including external drag-in.
+    projection: stack ? null : cardProjection,
+    model: viewData,
+    store,
+    dnd,
+  });
 
   // Cleanup visibility frame on unmount
   useEffect(() => {
@@ -323,20 +334,26 @@ function Layout(props) {
       dnd,
       store,
       readonly,
+      disabled: stack,
     });
-    return () => cardDragRef.current?.destroy?.();
+    return () => {
+      cardDragRef.current?.destroy?.();
+      cardDragRef.current = null;
+    };
   }, []);
 
   useEffect(() => {
-    cardDragRef.current?.update?.({ dnd, store, readonly });
-  }, [dnd, store, readonly]);
+    cardDragRef.current?.update?.({ dnd, store, readonly, disabled: stack });
+  }, [dnd, store, readonly, stack]);
 
   // ---- Svelte action: delegateClick ----
   useEffect(() => {
     if (!boardRef.current) return;
     const cleanup = delegateClick(boardRef.current, {
-      click: handleCardClick,
-      menu: handleCardMenu,
+      click: (id, ev) => handlersRef.current.handleCardClick(id, ev),
+      // the ⋯ button must not select the card; the click bubbles on to an
+      // outer CardActionMenu, which owns the menu
+      menu: () => {},
     });
     return () => cleanup?.destroy?.();
   }, []);
@@ -345,11 +362,12 @@ function Layout(props) {
   useEffect(() => {
     if (!boardRef.current) return;
     const node = boardRef.current;
+    const onKey = (e) => handlersRef.current.handleCardKey(e);
     const destroy = hotkeys.subscribe((keys) => {
       keys.configure(
         {
-          enter: handleCardKey,
-          space: handleCardKey,
+          enter: onKey,
+          space: onKey,
         },
         node,
       );
@@ -361,7 +379,9 @@ function Layout(props) {
   const boardClassName = [
     'wx-board',
     !columnScroll ? 'wx-scroll-board' : '',
-    !fixedColumnWidth ? 'wx-layout-flex' : '',
+    !stack && !fixedColumnWidth ? 'wx-layout-flex' : '',
+    stack ? 'wx-layout-stack' : '',
+    !stack && hasSwimlanes ? 'wx-lanes' : '',
     scope,
   ]
     .filter(Boolean)
@@ -386,29 +406,68 @@ function Layout(props) {
         >
           <div
             className={`wx-scroll ${scope}`}
-            ref={scrollRef}
+            ref={scrollCallbackRef}
             onScroll={scheduleColumnVisibility}
           >
-            <div className={`wx-content ${scope}`}>
-              {viewData.columns.map((column) => (
-                <Column
-                  key={column.id}
-                  column={column}
-                  readonly={readonly}
-                  cardContent={cardContent}
-                  cardShape={cardShape}
-                  contentVisible={isColumnContentVisible(column.id)}
-                  requestVisible={isColumnRequestVisible(column.id)}
-                  virtualizeCards={virtualizeCards}
-                  estimatedCardHeight={estimatedCardHeight}
-                  cardOverscan={cardOverscan}
-                  fixedColumnWidth={fixedColumnWidth}
-                  registerColumn={registerColumn}
-                  cardCss={cardCss}
-                  columnCss={columnCss}
-                />
-              ))}
-            </div>
+            {stack ? (
+              <Stack
+                model={viewData}
+                scroll={scroll}
+                readonly={readonly}
+                cardContent={cardContent}
+                cardShape={cardShape}
+                virtualizeCards={virtualizeCards}
+                estimatedCardHeight={estimatedCardHeight}
+                cardOverscan={cardOverscan}
+                virtualizeColumns={virtualizeColumns}
+                cardListStart={cardListStart}
+                cardListEnd={cardListEnd}
+                cardCss={cardCss}
+                columnCss={columnCss}
+              />
+            ) : hasSwimlanes ? (
+              <Swimlanes
+                model={viewData}
+                scroll={scroll}
+                readonly={readonly}
+                cardContent={cardContent}
+                cardShape={cardShape}
+                virtualizeCards={virtualizeCards}
+                estimatedCardHeight={estimatedCardHeight}
+                cardOverscan={cardOverscan}
+                fixedColumnWidth={fixedColumnWidth}
+                registerColumn={registerColumn}
+                cardListStart={cardListStart}
+                cardListEnd={cardListEnd}
+                cardCss={cardCss}
+                columnCss={columnCss}
+                contentVisible={isColumnContentVisible}
+                requestVisible={isColumnRequestVisible}
+              />
+            ) : (
+              <div className={`wx-content ${scope}`}>
+                {viewData.columns.map((column) => (
+                  <Column
+                    key={column.id}
+                    column={column}
+                    readonly={readonly}
+                    cardContent={cardContent}
+                    cardShape={cardShape}
+                    contentVisible={isColumnContentVisible(column.id)}
+                    requestVisible={isColumnRequestVisible(column.id)}
+                    virtualizeCards={virtualizeCards}
+                    estimatedCardHeight={estimatedCardHeight}
+                    cardOverscan={cardOverscan}
+                    fixedColumnWidth={fixedColumnWidth}
+                    registerColumn={registerColumn}
+                    cardListStart={cardListStart}
+                    cardListEnd={cardListEnd}
+                    cardCss={cardCss}
+                    columnCss={columnCss}
+                  />
+                ))}
+              </div>
+            )}
           </div>
         </div>
         {brandmark && (
@@ -427,15 +486,6 @@ function Layout(props) {
           cardContent={cardContent}
           cardShape={cardShape}
         />
-
-        {cardMenuConfig && (
-          <ContextMenu
-            ref={cardMenuRef}
-            options={cardMenuConfig.options}
-            filter={cardMenuConfig.filter}
-            onClick={cardMenuConfig.onclick}
-          />
-        )}
 
         {overlay.tooltipState && TooltipCmp && (
           <div
